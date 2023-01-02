@@ -1,14 +1,4 @@
 
-#addTodoListDiv{
-  margin-left: 2em;
-  margin-top: 4em;
-}
-
-#addTodoListDiv button{
-  margin-left: 0.5em;
-}
-
-
 #root{
   margin: 1em;
   /*border: 1px solid grey;*/
@@ -18,16 +8,14 @@
 
 
 .todoList{
-  /*border: 1px solid red;*/
+  position: relative;
   border-radius: 4px;
   min-height: 100px;
   background: var(--medium--blue);
   padding: 0.7em;
   margin: 1em 0 1em 1em;
-
   float: left;
   min-width: 300px;
-
   overflow: scroll;
   height: 80vh;
 }
@@ -44,6 +32,7 @@
 .card{
   /*border: 1px solid blue;*/
   border-radius: 4px;
+ 
   background: var(--light--blue);
   margin: 0.5em 0 0 0;
   padding: 0.5em;
@@ -137,7 +126,7 @@
 }
 
 .btn-save{
-  background-color:var(--coral);
+  background-color: #5aac44;
   color: white;
   border: none;
   border-radius: 4px;
@@ -146,3 +135,69 @@
   
 }
 
+.delete-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: transparent;
+  border: none;
+  box-shadow: 0px 10 10px 10px rgba(0, 0, 0, 0.25);
+  width: 25px;
+  height: 25px;
+}
+
+/* .delete-btn {
+  width: 150px;
+  height: 150px;
+  box-shadow: 0px 10 10px 10px rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+  background: #000;
+  left: 50%;
+  top: 50%;
+  margin-top: -75px;
+  margin-left: -75px;
+  position: absolute;
+  display: block;
+  z-index: 200;
+  text-indent: -9999px;
+} */
+.delete-btn:before,
+.delete-btn:after {
+  content: '';
+  width: 55%;
+  height: 2px;
+  background: red;
+  position: absolute;
+  top: 48%;
+  left: 22%;
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+  -webkit-transition: all 0.3s ease-out;
+  -moz-transition: all 0.3s ease-out;
+  -ms-transition: all 0.3s ease-out;
+  -o-transition: all 0.3s ease-out;
+  transition: all 0.3s ease-out;
+}
+.delete-btn:after {
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  transform: rotate(45deg);
+  -webkit-transition: all 0.3s ease-out;
+  -moz-transition: all 0.3s ease-out;
+  -ms-transition: all 0.3s ease-out;
+  -o-transition: all 0.3s ease-out;
+  transition: all 0.3s ease-out;
+}
+.delete-btn:hover:before,
+.delete-btn:hover:after {
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  transform: rotate(180deg);
+}

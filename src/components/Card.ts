@@ -2,8 +2,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import { root, State } from '../Lib';
 import { dragstartHandler } from '../Lib/dragAndDrop';
+import { deleteCardFromFirebase } from '../lib/firebase-init';
 import Comment from './Comment';
-import EditableText from './EditableText';
+import editableText from './editableText';
 import TodoList from './TodoList';
 
 export default class Card {
@@ -33,22 +34,27 @@ export default class Card {
 
   menuComments?: HTMLDivElement ;
 
-  editableDescription?: EditableText ;
+  editableDescription?: editableText ;
 
-  editableTitle?: EditableText;
+  editableText?: editableText;
 
   id: string;
 
-  constructor(text: string, place: HTMLElement, todoList: TodoList) {
-    this.id = uuidv4();
+  parentId: string;
+
+  constructor(title: string, place: HTMLElement, todoList: TodoList, id = '_'+uuidv4(), parentId:string) {
+    this.id = id;
     this.place = place;
     this.todoList = todoList;
     this.state = {
-      text,
+      id,
+      title,
       description: 'Click to write a description...',
       comments: [],
     };
+    this.parentId = parentId;
     this.render();
+
   }
 
   render(): void {
@@ -56,6 +62,8 @@ export default class Card {
     this.card.classList.add('card');
     this.card.setAttribute('draggable', 'true');
     this.card.id = this.id;
+    this.deleteButton = document.createElement('button');
+    this.deleteButton.classList.add('delete-btn')
     this.card.addEventListener('click', (e) => {
       if (e.target !== this.deleteButton) {
         this.showMenu.call(this);
@@ -64,12 +72,14 @@ export default class Card {
     this.card.addEventListener('dragstart', dragstartHandler);
 
     this.p = document.createElement('p');
-    this.p.innerText = this.state.text;
+    this.p.innerText = this.state.title;
 
     this.deleteButton = document.createElement('button');
-    this.deleteButton.innerText = 'X';
+    this.deleteButton.classList.add('delete-btn')
+
     this.deleteButton.addEventListener('click', () => {
       this.deleteCard.call(this);
+      deleteCardFromFirebase(this.parentId!, this.id);
     });
 
     this.card.append(this.p);
@@ -97,13 +107,15 @@ export default class Card {
     // Add class names
     this.menu.className = 'menu';
     this.menuContainer.className = 'menuContainer';
+    this.menu.setAttribute('data-id', this.id);
+    this.menu.setAttribute('data-todolist-id', this.parentId )
     this.menuTitle.className = 'menuTitle';
     this.menuDescription.className = 'menuDescription';
     this.menuComments.className = 'menuComments';
     this.commentsInput.className = 'commentsInput comment';
     this.commentsButton.className = 'commentsButton btn-save';
-
-    // Add inner Text
+    
+    // Add inner title
     this.commentsButton.innerText = 'Add';
     this.commentsInput.placeholder = 'Write a comment...';
 
@@ -130,9 +142,8 @@ export default class Card {
     this.menu.append(this.menuComments);
     this.menuContainer.append(this.menu);
     root.append(this.menuContainer);
-
-    this.editableDescription = new EditableText(this.state.description, this.menuDescription, this, 'description', 'textarea');
-    this.editableTitle = new EditableText(this.state.text, this.menuTitle, this, 'text', 'input');
+    this.editableDescription = new editableText(this.state.description, this.menuDescription, this, 'description', 'textarea', this.id, this.parentId);
+    this.editableText = new editableText(this.state.title, this.menuTitle, this, 'title', 'input', this.id, this.parentId);
 
     this.renderComments();
   }

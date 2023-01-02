@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Card from './Card';
 
 export default class Comment {
-  text: string;
+  title: string;
 
   place: HTMLElement;
 
@@ -14,7 +14,7 @@ export default class Comment {
   id: string;
 
   constructor(text: string, place: HTMLElement, card: Card) {
-    this.text = text;
+    this.title = text;
     this.place = place;
     this.card = card;
     this.id = uuidv4();
@@ -25,7 +25,7 @@ export default class Comment {
     this.div = document.createElement('div');
     this.div.className = 'comment';
     this.card.id = this.id;
-    this.div.innerText = this.text;
+    this.div.innerText = this.title;
     this.place.append(this.div);
   }
 }

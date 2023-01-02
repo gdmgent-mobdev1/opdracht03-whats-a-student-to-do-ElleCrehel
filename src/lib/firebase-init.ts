@@ -1,3 +1,39 @@
+import { initializeApp } from "firebase/app";
+
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
+
+import { 
+  getFirestore, 
+  doc, 
+  deleteDoc, 
+  collection,
+  addDoc,
+  setDoc 
+} from "firebase/firestore";
+
+// firebase config object (frontendobject) -> to connect to frontend to backend
+const firebaseConfig = {
+  apiKey: "AIzaSyB-wSWTKbXEU1iuR_2sR4elQJfcoZn_RJs",
+  authDomain: "studanner.firebaseapp.com",
+  projectId: "studanner",
+  storageBucket: "studanner.appspot.com",
+  messagingSenderId: "741229277735",
+  appId: "1:741229277735:web:6b8fdcab542d46e1fb1402",
+};
+
+// tell function what project to use
+initializeApp(firebaseConfig);
+
+// init services
+const auth = getAuth();
+
 // DOM
 const googlebutton = document.querySelector(".google-logo");
 const loginForm: any = document.querySelector(".loginForm");
@@ -16,34 +52,6 @@ const registerButton = document.querySelector(".register-button");
 const loggedInOverview = document.querySelector(".loggedIn");
 const divWrongEmailOrPass = document.querySelector(".divWrongEmailOrPass");
 const logOutButton = document.querySelector(".logout")
-
-// firebase imports
-import { initializeApp } from "firebase/app";
-
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  GoogleAuthProvider,
-  signInWithPopup,
-} from "firebase/auth";
-
-// firebase config object (frontendobject) -> to connect to frontend to backend
-const firebaseConfig = {
-  apiKey: "AIzaSyB-wSWTKbXEU1iuR_2sR4elQJfcoZn_RJs",
-  authDomain: "studanner.firebaseapp.com",
-  projectId: "studanner",
-  storageBucket: "studanner.appspot.com",
-  messagingSenderId: "741229277735",
-  appId: "1:741229277735:web:6b8fdcab542d46e1fb1402",
-};
-
-// tell function what project to use
-initializeApp(firebaseConfig);
-
-// init services
-const auth = getAuth();
 
 // register user
 
@@ -127,20 +135,6 @@ let loginWithGoogle = () => {
 };
 googlebutton.addEventListener("click", loginWithGoogle);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // put all the pages here
 const pages = [registerPage, loginPage];
 // function for navigating trough pages
@@ -173,3 +167,45 @@ function Changescreens() {
 
 Changescreens()
 
+
+// Initialize Firebase
+
+export const fireStoreApp = initializeApp(firebaseConfig);
+
+
+// get data from firestore
+export const fireStoreDb = getFirestore(fireStoreApp);
+export const addTodoFirebase = async(text: string, todoId: string) => {
+  const cardsSnapShot = collection(fireStoreDb, `lists/${todoId}/cards`);
+  
+  const docRef = await addDoc(cardsSnapShot, {
+    title: text,
+    description: '',
+    comments: []
+    }
+  );
+  return docRef.id;
+}
+
+export const updateTodoFirebase = async(todoListId: string, id: string, attribute: string, value: string) => {
+  console.log(todoListId, id, attribute, value);
+  if(attribute === 'title'){
+    const answer = await setDoc(doc(fireStoreDb, `lists/${todoListId}/cards`, id), {
+      title: value
+    }, { merge: true });
+  }else{
+    const answer = await setDoc(doc(fireStoreDb, `lists/${todoListId}/cards`, id), {
+      description: value
+    }, { merge: true });
+  }
+  
+}
+
+
+export const deleteTodoListFirebase = async(id: string) => {
+  await deleteDoc(doc(fireStoreDb, "lists", id));
+}
+
+export const deleteCardFromFirebase = async(todoListId: string, id: string) => {
+  await deleteDoc(doc(fireStoreDb, `lists/${todoListId}/cards`, id));
+}

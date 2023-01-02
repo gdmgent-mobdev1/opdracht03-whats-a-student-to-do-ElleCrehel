@@ -1,4 +1,7 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import { dragoverHandler, dropHandler } from '../Lib/dragAndDrop';
+import { addTodoFirebase, deleteTodoListFirebase } from '../lib/firebase-init';
 // eslint-disable-next-line import/no-cycle
 import Card from './Card';
 
@@ -17,20 +20,26 @@ export default class TodoList {
 
   button?: HTMLButtonElement ;
 
+  deleteButton?: HTMLButtonElement;
+
   todoListElement?: string | HTMLElement ;
 
-  constructor(place: HTMLElement, title = 'to-do list') {
+  id: string;
+  constructor(place: HTMLElement, title = 'to-do list', id = '_'+uuidv4()) {
+    this.id = id;
     this.place = place;
     this.title = title;
     this.cardArray = [];
-
+    this.id = id;
     this.render();
   }
 
-  addToDo(): void {
+  async addToDo() {
     if (this.input instanceof HTMLInputElement && this.div instanceof HTMLDivElement) {
       const text = this.input.value;
-      this.cardArray.push(new Card(text, this.div, this));
+      const cardId = await addTodoFirebase(text, this.id);
+      const newCard = new Card(text, this.div, this, cardId, this.id)
+      this.cardArray.push(newCard); 
     }
   }
 
@@ -57,8 +66,10 @@ export default class TodoList {
     this.button.classList.add('btn-save');
     this.button.id = 'to-do-list-button';
     this.div = document.createElement('div');
+    this.deleteButton = document.createElement('button');
+    this.deleteButton.classList.add('delete-btn')
     this.todoListElement = document.createElement('div');
-
+    this.todoListElement.id = this.id;
     // Add Event listener
     this.button.addEventListener('click', () => {
       if ((this.input !== null) && this.input?.value !== '') {
@@ -66,12 +77,18 @@ export default class TodoList {
         this.input!.value = '';
       }
     });
+    this.deleteButton.addEventListener('click', () => {
+      deleteTodoListFirebase(this.id);
+      document.querySelector(`#${this.id}`)?.remove();
+    });
+    
 
     // Append elements to the to-do list element
     this.todoListElement.append(this.h2);
     this.todoListElement.append(this.input);
     this.todoListElement.append(this.button);
     this.todoListElement.append(this.div);
+    this.todoListElement.append(this.deleteButton);
     this.todoListElement.classList.add('todoList');
   }
 }
