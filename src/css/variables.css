@@ -1,0 +1,14 @@
+:root {
+  /* colors: */
+  --black: #201E1F;
+  --white: #FFFFFF;
+  --coral: #FF5964;
+  --old--pink: #DB81B7;
+  --light--blue: #5273B1;
+  --medium--blue:#4467A8;
+  --error--red:#f00c0c;
+
+  /* text: */
+  --text--normal: 'Roboto', sans-serif;
+
+}
