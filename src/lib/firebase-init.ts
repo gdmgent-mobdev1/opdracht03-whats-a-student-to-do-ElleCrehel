@@ -1,3 +1,4 @@
+/* FIREBASE IMPORTS */
 import { initializeApp } from "firebase/app";
 
 import {
@@ -7,17 +8,17 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
+  GithubAuthProvider,
 } from "firebase/auth";
 
-import { 
-  getFirestore, 
-  doc, 
-  deleteDoc, 
+import {
+  getFirestore,
+  doc,
+  deleteDoc,
   collection,
   addDoc,
-  setDoc 
+  setDoc,
 } from "firebase/firestore";
-
 // firebase config object (frontendobject) -> to connect to frontend to backend
 const firebaseConfig = {
   apiKey: "AIzaSyB-wSWTKbXEU1iuR_2sR4elQJfcoZn_RJs",
@@ -29,13 +30,16 @@ const firebaseConfig = {
 };
 
 // tell function what project to use
-initializeApp(firebaseConfig);
+// Initialize Firebase
+
+export const fireStoreApp = initializeApp(firebaseConfig);
 
 // init services
 const auth = getAuth();
 
-// DOM
+/* DOM */
 const googlebutton = document.querySelector(".google-logo");
+const githubButton = document.querySelector(".github-logo");
 const loginForm: any = document.querySelector(".loginForm");
 const registerFrom: HTMLFormElement = document.querySelector(".registerForm");
 const loginToregisterButton = document.querySelector(
@@ -47,12 +51,12 @@ const registerTologinButton = document.querySelector(
 );
 const loginPage = document.querySelector(".login");
 
-
 const registerButton = document.querySelector(".register-button");
 const loggedInOverview = document.querySelector(".loggedIn");
 const divWrongEmailOrPass = document.querySelector(".divWrongEmailOrPass");
-const logOutButton = document.querySelector(".logout")
+const logOutButton = document.querySelector(".logout");
 
+/* 1) AUTHENTICATIE & REGISTRATIE  */
 // register user
 
 registerFrom?.addEventListener("submit", (e: any) => {
@@ -85,11 +89,8 @@ loginForm.addEventListener("submit", (e: any) => {
 
   const email: string = loginForm.email.value;
   const password: string = loginForm.password.value;
-  
-    
-    
+
   signInWithEmailAndPassword(auth, email, password)
-  
     .then((cred) => {
       console.log("user logged in:", cred.user);
       // loginForm.reset();
@@ -111,9 +112,8 @@ logOutButton.addEventListener("click", () => {
   signOut(auth)
     .then(() => {
       console.log("user signed out");
-      changeScreen(loginPage)
-      loggedInOverview.classList.add("hidden")
-
+      changeScreen(loginPage);
+      loggedInOverview.classList.add("hidden");
     })
     .catch((err) => {
       console.log(err.message);
@@ -121,12 +121,12 @@ logOutButton.addEventListener("click", () => {
 });
 
 //signing up with google
-
 let loginWithGoogle = () => {
   let provider = new GoogleAuthProvider();
   signInWithPopup(auth, provider)
     .then(() => {
       console.log("you are logged in with google");
+      changeScreen(loggedInOverview);
     })
     .catch((err) => {
       console.log(err.message);
@@ -135,9 +135,47 @@ let loginWithGoogle = () => {
 };
 googlebutton.addEventListener("click", loginWithGoogle);
 
-// put all the pages here
-const pages = [registerPage, loginPage];
-// function for navigating trough pages
+//signing up with github
+//const loginWithGithub = getAuth();
+let loginWithGithub = () => {
+  let githubProvider = new GithubAuthProvider();
+  signInWithPopup(auth, githubProvider)
+    .then((result) => {
+     
+      // This gives you a GitHub Access Token. You can use it to access the GitHub API.
+      const credential = GithubAuthProvider.credentialFromResult(result);
+     
+      const token = credential.accessToken;
+      console.log(token);
+
+      // The signed-in user info.
+      const user = result.user;
+      console.log(user);
+      
+    })
+    .catch((error) => {
+      // Handle Errors here.
+      const errorCode = error.code;
+      console.log(errorCode);
+      const errorMessage = error.message;
+      console.log(errorMessage);
+      // The email of the user's account used.
+      const email = error.customData.email;
+      console.log(email);
+      // The AuthCredential type that was used.
+      const credential = GithubAuthProvider.credentialFromError(error);
+      console.log(credential);
+    });
+    
+};
+ 
+githubButton.addEventListener("click", loginWithGithub);
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+/* CHANING PAGES */
+const pages = [registerPage, loginPage, loggedInOverview];
+
 const changeScreen = (destinationScreen: any) => {
   destinationScreen.classList.remove("hidden");
 
@@ -148,7 +186,6 @@ const changeScreen = (destinationScreen: any) => {
   });
 };
 
-// function to change between login and register page
 function Changescreens() {
   loginToregisterButton.addEventListener("click", async function () {
     changeScreen(registerPage);
@@ -156,56 +193,64 @@ function Changescreens() {
   registerTologinButton.addEventListener("click", async function () {
     changeScreen(loginPage);
   });
-  
+
   registerButton.addEventListener("click", async function () {
     changeScreen(loggedInOverview);
   });
-  googlebutton.addEventListener("click", async function () {
+// pas aan
+  githubButton.addEventListener("click", async function () {
     changeScreen(loggedInOverview);
   });
 }
 
-Changescreens()
-
-
-// Initialize Firebase
-
-export const fireStoreApp = initializeApp(firebaseConfig);
-
+Changescreens();
 
 // get data from firestore
 export const fireStoreDb = getFirestore(fireStoreApp);
-export const addTodoFirebase = async(text: string, todoId: string) => {
+export const addTodoFirebase = async (text: string, todoId: string) => {
   const cardsSnapShot = collection(fireStoreDb, `lists/${todoId}/cards`);
-  
+
   const docRef = await addDoc(cardsSnapShot, {
     title: text,
-    description: '',
-    comments: []
-    }
-  );
+    description: "",
+    comments: [],
+  });
   return docRef.id;
-}
+};
 
-export const updateTodoFirebase = async(todoListId: string, id: string, attribute: string, value: string) => {
+export const updateTodoFirebase = async (
+  todoListId: string,
+  id: string,
+  attribute: string,
+  value: string
+) => {
   console.log(todoListId, id, attribute, value);
-  if(attribute === 'title'){
-    const answer = await setDoc(doc(fireStoreDb, `lists/${todoListId}/cards`, id), {
-      title: value
-    }, { merge: true });
-  }else{
-    const answer = await setDoc(doc(fireStoreDb, `lists/${todoListId}/cards`, id), {
-      description: value
-    }, { merge: true });
+  if (attribute === "title") {
+    await setDoc(
+      doc(fireStoreDb, `lists/${todoListId}/cards`, id),
+      {
+        title: value,
+      },
+      { merge: true }
+    );
+  } else {
+    await setDoc(
+      doc(fireStoreDb, `lists/${todoListId}/cards`, id),
+      {
+        description: value,
+      },
+      { merge: true }
+    );
   }
-  
-}
+};
 
-
-export const deleteTodoListFirebase = async(id: string) => {
+export const deleteTodoListFirebase = async (id: string) => {
   await deleteDoc(doc(fireStoreDb, "lists", id));
-}
+};
 
-export const deleteCardFromFirebase = async(todoListId: string, id: string) => {
+export const deleteCardFromFirebase = async (
+  todoListId: string,
+  id: string
+) => {
   await deleteDoc(doc(fireStoreDb, `lists/${todoListId}/cards`, id));
-}
+};

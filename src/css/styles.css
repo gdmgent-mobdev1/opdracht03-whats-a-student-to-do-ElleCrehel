@@ -86,7 +86,7 @@ h2 {
   justify-content: center;
   background-position: 10px 10px;
   background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/1200px-Google_%22G%22_Logo.svg.png);
-  background-size: 15px;
+  background-size: 25px;
   background-repeat: no-repeat;
   align-items: center;
   justify-content: center;
@@ -97,7 +97,25 @@ h2 {
   background-color: var(--light--blue);
   color: var(--white);
 }
+.github-logo {
 
+  align-items: center;
+  justify-content: center;
+  background-position: 10px 10px;
+  background-image: url(https://cdn-icons-png.flaticon.com/512/25/25231.png);
+  background-size: 25px;
+  background-repeat: no-repeat;
+  align-items: center;
+  justify-content: center;
+  width: 400px;
+  padding: 12px 63px;
+  border-radius: 4px;
+  border: 2px solid var(--black);
+  background-color: var(--light--blue);
+  color: var(--white);
+  margin-top: 10px;
+
+}
 .login-register,
 .register-login {
   font-size: 15px;
@@ -131,7 +149,7 @@ h2 {
 }
 
 .logout {
-  color: var(--white);
+  color: var(--coral);
   background-color: var(--medium--blue);
   padding: 10px 30px;
   border: none;
