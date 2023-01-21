@@ -19,7 +19,7 @@ import {
   addDoc,
   setDoc,
   where,
-  Query,
+  query,
   DocumentData,
 } from "firebase/firestore";
 // firebase config object (frontendobject) -> to connect to frontend to backend
@@ -39,7 +39,8 @@ export const fireStoreApp = initializeApp(firebaseConfig);
 
 // init services
 const auth = getAuth();
-
+const db = getFirestore();
+// const cardsRef = collection(db,"cards")
 
 /* DOM */
 const googlebutton = document.querySelector(".google-logo");
@@ -49,16 +50,18 @@ const registerFrom: HTMLFormElement = document.querySelector(".registerForm");
 const loginToregisterButton = document.querySelector(
   ".login-page-register-button"
 );
-const registerPage = document.querySelector(".register-page");
+export const registerPage = document.querySelector(".register-page");
 const registerTologinButton = document.querySelector(
   ".register-page-login-button"
 );
 const loginPage = document.querySelector(".login");
 
 const registerButton = document.querySelector(".register-button");
-const loggedInOverview = document.querySelector(".loggedIn");
+export const loggedInOverview = document.querySelector(".loggedIn");
 const divWrongEmailOrPass = document.querySelector(".divWrongEmailOrPass");
 const logOutButton = document.querySelector(".logout");
+export const detailproject = document.querySelector(".detailProjects");
+
 
 /* 1) AUTHENTICATIE & REGISTRATIE  */
 
@@ -182,6 +185,7 @@ githubButton.addEventListener("click", loginWithGithub);
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 /* CHANING PAGES */
+
 const pages = [registerPage, loginPage, loggedInOverview];
 
 const changeScreen = (destinationScreen: any) => {
@@ -209,24 +213,29 @@ function Changescreens() {
   githubButton.addEventListener("click", async function () {
     changeScreen(loggedInOverview);
   });
+  
 }
 
 Changescreens();
 
 // get data from firestore
+
 export const fireStoreDb = getFirestore(fireStoreApp);
 export const addTodoFirebase = async (text: string, todoId: string) => {
   const cardsSnapShot = collection(fireStoreDb, `lists/${todoId}/cards`);
-
+  
   const docRef = await addDoc(cardsSnapShot, {
     title: text,
     description: "",
     comments: [],
     cards_user_uid: localStorage.getItem("user_Uid")
   });
+  //console.log('test')
   return docRef.id;
-};
+  
 
+};
+//const q = query(cardsRef, where('cards_user_uid',"==" ,localStorage.getItem("user_Uid") ))
 export const updateTodoFirebase = async (
   todoListId: string,
   id: string,

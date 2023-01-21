@@ -9,10 +9,10 @@ import {
 } from "firebase/firestore";
 
 const db = getFirestore();
-const colRef = collection(db, "cards");
+// const colRef = collection(db, "cards");
 
 import { dragoverHandler, dropHandler } from "../Lib/dragAndDrop";
-import { addTodoFirebase, deleteTodoListFirebase } from "../lib/firebase-init";
+import { addTodoFirebase, deleteTodoListFirebase, detailproject, loggedInOverview} from "../lib/firebase-init";
 // eslint-disable-next-line import/no-cycle
 import Card from "./Card";
 
@@ -35,9 +35,10 @@ export default class TodoList {
 
   deleteButton?: HTMLButtonElement;
 
-  todoListElement?: string | HTMLElement;
+  todoListElement?: string | HTMLElement | any ;
 
   id: string;
+  detail: HTMLButtonElement;
   constructor(
     place: HTMLElement,
     title = "to-do list",
@@ -49,8 +50,8 @@ export default class TodoList {
     console.log(title);
     this.cardArray = [];
     this.id = id;
-    // console.log(this.cards_user_uid);
-    // cards_user_uid = localStorage.getItem("user_Uid")
+    //console.log(this.cards_user_uid);
+   // console.log(localStorage.getItem("user_Uid"))
     this.render();
   }
   
@@ -63,6 +64,7 @@ export default class TodoList {
       const cardId = await addTodoFirebase(text, this.id);
       const newCard = new Card(text, this.div, this, cardId, this.id);
       this.cardArray.push(newCard);
+     
     }
   }
 
@@ -98,6 +100,10 @@ export default class TodoList {
       this.deleteButton.classList.add("delete-btn");
       this.todoListElement = document.createElement("div");
       this.todoListElement.id = this.id;
+      this.detail = document.createElement("button");
+      this.detail.innerText = "detail";
+      this.detail.classList.add('detail');
+      
       // Add Event listener
       this.button.addEventListener("click", () => {
         if (this.input !== null && this.input?.value !== "") {
@@ -105,19 +111,47 @@ export default class TodoList {
           this.input!.value = "";
         }
       });
+
       this.deleteButton.addEventListener("click", () => {
         deleteTodoListFirebase(this.id);
         document.querySelector(`#${this.id}`)?.remove();
       });
-  
+
+    
+     
       // Append elements to the to-do list element
       this.todoListElement.append(this.h2);
+      this.todoListElement.append(this.detail);
       this.todoListElement.append(this.input);
       this.todoListElement.append(this.button);
       this.todoListElement.append(this.div);
       this.todoListElement.append(this.deleteButton);
       this.todoListElement.classList.add("todoList");
    
-    
+      this.detail.addEventListener("click", async function () {
+        changeScreen(detailproject);
+
+        /*DETAILPAGINE */
+      const cardElement: any = document.querySelector(".todoList")
+       // getToDetail
+      cardElement.classList.remove("todoList")
+       cardElement.classList.add("hidden")
+        loggedInOverview.classList.add("hidden")
+
+      });
   }
 }
+
+
+const pages = [detailproject];
+
+const changeScreen = (destinationScreen: any) => {
+  destinationScreen.classList.remove("hidden");
+
+  pages.map((page) => {
+    if (page !== destinationScreen) {
+      page.classList.add("hidden");
+    }
+  });
+};
+

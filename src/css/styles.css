@@ -270,3 +270,6 @@ h2 {
 		width: 40%;
 	}
 
+.detailProjects {
+  color:var(--black);
+}

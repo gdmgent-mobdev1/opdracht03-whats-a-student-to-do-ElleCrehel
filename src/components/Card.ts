@@ -55,6 +55,7 @@ export default class Card {
     };
     this.parentId = parentId;
     this.render();
+    console.log('test')
 
   }
 
