@@ -18,6 +18,9 @@ import {
   collection,
   addDoc,
   setDoc,
+  where,
+  Query,
+  DocumentData,
 } from "firebase/firestore";
 // firebase config object (frontendobject) -> to connect to frontend to backend
 const firebaseConfig = {
@@ -36,6 +39,7 @@ export const fireStoreApp = initializeApp(firebaseConfig);
 
 // init services
 const auth = getAuth();
+
 
 /* DOM */
 const googlebutton = document.querySelector(".google-logo");
@@ -57,8 +61,8 @@ const divWrongEmailOrPass = document.querySelector(".divWrongEmailOrPass");
 const logOutButton = document.querySelector(".logout");
 
 /* 1) AUTHENTICATIE & REGISTRATIE  */
-// register user
 
+// register user
 registerFrom?.addEventListener("submit", (e: any) => {
   // console.log("test");
   // console.log(registerFrom);
@@ -96,6 +100,11 @@ loginForm.addEventListener("submit", (e: any) => {
       // loginForm.reset();
       changeScreen(loggedInOverview);
       loginForm.reset();
+      const { user } = cred;
+
+      localStorage.setItem("user_Uid", user.uid);
+      const userUid = localStorage.getItem("user_Uid");
+      console.log(userUid);
     })
     .catch((err) => {
       console.log(err.message);
@@ -141,17 +150,15 @@ let loginWithGithub = () => {
   let githubProvider = new GithubAuthProvider();
   signInWithPopup(auth, githubProvider)
     .then((result) => {
-     
       // This gives you a GitHub Access Token. You can use it to access the GitHub API.
       const credential = GithubAuthProvider.credentialFromResult(result);
-     
+
       const token = credential.accessToken;
       console.log(token);
 
       // The signed-in user info.
       const user = result.user;
       console.log(user);
-      
     })
     .catch((error) => {
       // Handle Errors here.
@@ -166,10 +173,11 @@ let loginWithGithub = () => {
       const credential = GithubAuthProvider.credentialFromError(error);
       console.log(credential);
     });
-    
 };
- 
+
 githubButton.addEventListener("click", loginWithGithub);
+
+// get the currently signed-in user
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -197,7 +205,7 @@ function Changescreens() {
   registerButton.addEventListener("click", async function () {
     changeScreen(loggedInOverview);
   });
-// pas aan
+  // pas aan
   githubButton.addEventListener("click", async function () {
     changeScreen(loggedInOverview);
   });
@@ -214,6 +222,7 @@ export const addTodoFirebase = async (text: string, todoId: string) => {
     title: text,
     description: "",
     comments: [],
+    cards_user_uid: localStorage.getItem("user_Uid")
   });
   return docRef.id;
 };

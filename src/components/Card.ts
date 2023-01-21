@@ -12,6 +12,7 @@ export default class Card {
 
   todoList: TodoList;
 
+  cards_user_uid: string = localStorage.getItem("user_Uid");
   state: State;
 
   menuContainer?: HTMLElement;
@@ -64,6 +65,7 @@ export default class Card {
     this.card.id = this.id;
     this.deleteButton = document.createElement('button');
     this.deleteButton.classList.add('delete-btn')
+    
     this.card.addEventListener('click', (e) => {
       if (e.target !== this.deleteButton) {
         this.showMenu.call(this);
@@ -147,6 +149,8 @@ export default class Card {
 
     this.renderComments();
   }
+
+
 
   renderComments(): void {
     if (this.menuComments instanceof HTMLElement && this.menuComments != null) {
