@@ -36,6 +36,7 @@ const nameOnDetailPage = document.querySelector(".nameDetailPage");
 const formAddNewCard: any = document.querySelector(".addCard");
 const divAllCards: any = document.querySelector(".allCards")
 const backToProjects:any = document.querySelector(".backToprojects")
+const divAllTodo: any = document.querySelector(".allToDo")
 /* FIREBASE*/
 
 import { initializeApp } from "firebase/app";
@@ -91,6 +92,7 @@ const db = getFirestore();
 // collection ref
 const colRefProjects = collection(db, "projects");
 const colrefCards = collection(db, "cards");
+const colrefTodo = collection(db, "todo")
 /* FUNCTION TO NAVIGATE BETWEEN PAGES */
 const pages = [registerPage, loginPage, loggedInOverview, detailPage];
 
@@ -286,8 +288,7 @@ onSnapshot(colRefProjects, (snapchot) => {
         detailName.innerHTML = `${projectName}`;
         nameOnDetailPage.appendChild(detailName);
        
-        
-
+      
         // Add a new card
         formAddNewCard.addEventListener("submit", (e) => {
           e.preventDefault();
@@ -315,17 +316,50 @@ onSnapshot(colRefProjects, (snapchot) => {
             if (projectId == cardprojectId ){
               let newCard = document.createElement('p')
               newCard.classList.add("newCard")
-              newCard.innerHTML= `${cardName} <form class="addToDo">
+              newCard.innerHTML= `${cardName} <form id="addToDo">
               <label for="todo_name"></label>
-              <input type="text" class="comment" name="todo_name"/>
+              <input type="text" class="input-todo" name="todo_name"/>
               <button class="btn-save-todo">Add New todo</button>
             </form>`
               divAllCards.appendChild(newCard)
             } else {
               console.log('niet dezelfde');
             }
-            
-            })
+         // Add a new todo
+         const fromAddTodo:any = document.querySelector("#addToDo");
+          
+         fromAddTodo.addEventListener("submit", (e)=> {
+         e.preventDefault();
+
+         addDoc(colrefTodo,  {
+           todo_name: fromAddTodo.todo_name.value,
+           todo_user_Uid: localStorage.getItem("user_Uid"),
+           todo_card_id: cardId,
+         }).then(fromAddTodo.reset());
+        });
+        onSnapshot(colrefTodo, (snapchot)=> {
+         let todo: any = [];
+         snapchot.docs.forEach((doc)=>{
+           todo.push({...doc.data(), id:doc.id});
+           divAllTodo.innerHTML="";
+
+           // get todo info
+           todo.forEach((doc:any)=> {
+             const todoName = doc?.todo_name;
+             const todo_card_id = doc?.todo_card_id;
+             const todo_id = doc?.id
+             const todoUid = localStorage.getItem("user_Uid");
+
+           // show todo to user
+           let newTodo = document.createElement('p');
+           newTodo.classList.add("newTodo")
+           newTodo.innerHTML= `${todoName}`;
+           divAllTodo.appendChild(newTodo)
+           })
+         })
+        })
+
+          })
 
           })
         })
