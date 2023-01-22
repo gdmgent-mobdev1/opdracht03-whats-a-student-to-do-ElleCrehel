@@ -325,5 +325,10 @@ h2 {
 }
 
 .newTodo {
-  color: var(--error--red);
+  color: var(--white);
+  background-color: var(--light--blue);
+  margin: 5px;
+  height: 40px;
+  width: 290px;
+  
 }

@@ -1,5 +1,4 @@
 /* QUERYSELECTORS */
-
 const googlebutton = document.querySelector(".google-logo") as HTMLElement;
 const githubButton = document.querySelector(".github-logo") as HTMLElement;
 const loginForm: any = document.querySelector(".loginForm") as HTMLElement;
@@ -53,21 +52,11 @@ import {
 
 import {
   getFirestore,
-  doc,
-  deleteDoc,
   collection,
   addDoc,
-  setDoc,
-  where,
-  query,
-  DocumentData,
+  
   onSnapshot,
-  serverTimestamp,
-  orderBy,
-  limit,
-  getDoc,
-  Timestamp,
-  getDocs,
+
 } from "firebase/firestore";
 
 // firebase config object (frontendobject) -> to connect to frontend to backend
@@ -269,9 +258,10 @@ onSnapshot(colRefProjects, (snapchot) => {
       const projectId = doc?.id;
       localStorage.setItem("project_id", projectId);
       const uidUser = localStorage.getItem("user_Uid");
-
+if(uidUser == localStorage.getItem("user_Uid")) {
+  
+}
       // Show the projects to the viewer
-
       let newProject = document.createElement("p");
       newProject.classList.add("newProject");
       newProject.innerHTML = `Project: ${projectName}`;
@@ -310,7 +300,7 @@ onSnapshot(colRefProjects, (snapchot) => {
               const cardName = doc?.card_name;
               const cardprojectId = doc?.project_id;
               const cardId = doc?.id;
-              const cardUid = localStorage.getItem("user_Uid");
+             //const cardUid = localStorage.getItem("user_Uid");
 
               // show the cards to the user
               if (projectId == cardprojectId) {
@@ -325,6 +315,7 @@ onSnapshot(colRefProjects, (snapchot) => {
                 const fromAddTodo: any = document.querySelector(".addToDo");
                 console.log(fromAddTodo);
                 const divAllTodo: any = document.querySelector(".allToDo")
+                
                 fromAddTodo.addEventListener("submit", (e) => {
                   e.preventDefault();
 
@@ -336,10 +327,12 @@ onSnapshot(colRefProjects, (snapchot) => {
                 });
                 onSnapshot(colrefTodo, (snapchot) => {
                   let todo: any = [];
+                  
                   snapchot.docs.forEach((doc) => {
+                   
                     todo.push({ ...doc.data(), id: doc.id });
                    // console.log(todo);
-                   // divAllTodo.innerHTML = "";
+                   divAllTodo.innerHTML = "";
 
                     // get todo info
                     todo.forEach((doc: any) => {
@@ -347,15 +340,20 @@ onSnapshot(colRefProjects, (snapchot) => {
                       console.log(todoName)
                       localStorage.setItem("todoname", todoName);
                       const todo_card_id = doc?.todo_card_id;
-                      const todo_id = doc?.id;
-                      const todoUid = localStorage.getItem("user_Uid");
+                     // const todo_id = doc?.id;
+                     // const todoUid = localStorage.getItem("user_Uid");
 
                       // show todo to user
-                      
-                      let newTodo = document.createElement("p");
-                      newTodo.classList.add("newTodo");
-                      newTodo.innerHTML = `${todoName}`;
-                      divAllTodo.appendChild(newTodo);
+                      if (cardId == todo_card_id ) {
+                        let newTodo = document.createElement("p");
+                        newTodo.classList.add("newTodo");
+                        newTodo.innerHTML = `${todoName}`;
+                        divAllTodo.appendChild(newTodo);
+                      } else {
+                        console.log("anders")
+                      }
+    
+                     
                     });
                   });
                 });
@@ -363,7 +361,7 @@ onSnapshot(colRefProjects, (snapchot) => {
                 console.log("niet dezelfde");
               }
 
-              const todoname = localStorage.getItem("todoname");
+              //const todoname = localStorage.getItem("todoname");
             });
           });
         });
