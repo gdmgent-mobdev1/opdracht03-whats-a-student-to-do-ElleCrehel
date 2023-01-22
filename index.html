@@ -98,21 +98,32 @@
         </div>
         
         <div id="addTodoListDiv">
-          <input type="text" id="addTodoListInput" class="comment" />
-          <button id="addTodoListButton" class="btn-save">Add list</button>
+          <form class="addProject">
+          <label for="project_name"></label>
+          <input type="text" id="addTodoListInput" class="comment" name="project_name"/>
+          <button id="addTodoListButton" class="btn-save">Add New Project</button>
+        </form>
         </div>
+        <div class="projects"></div>
         <div id="app"></div>
     
         <button class="logout">log out</button>
       </div>
-      <div class="detailProjects hidden">
+  
+        
+      </div>
+      <div class="showDetailOfcard hidden">
         <div class="app-name">
           <h1>studanner</h1>
         </div>
-        <p>hier komt detail</p>
+        <div class="overview-projects">
+        <div class="nameDetailPage"></div>
       </div>
+        <button class="logoutDetail">log out</button>
+      </div>
+      
     </main>
 
-    <script type="module" src="./src/app.ts"></script>
+    <script type="module" src="./src/ts/app.ts"></script>
   </body>
 </html>

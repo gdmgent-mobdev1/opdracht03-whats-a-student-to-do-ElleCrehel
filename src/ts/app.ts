@@ -1,4 +1,40 @@
-/* FIREBASE IMPORTS */
+/* QUERYSELECTORS */
+
+const googlebutton = document.querySelector(".google-logo") as HTMLElement;
+const githubButton = document.querySelector(".github-logo") as HTMLElement;
+const loginForm: any = document.querySelector(".loginForm") as HTMLElement;
+const registerFrom: any = document.querySelector(".registerForm");
+const loginToregisterButton = document.querySelector(
+  ".login-page-register-button"
+) as HTMLElement;
+export const registerPage = document.querySelector(
+  ".register-page"
+) as HTMLElement;
+const registerTologinButton = document.querySelector(
+  ".register-page-login-button"
+) as HTMLElement;
+const loginPage = document.querySelector(".login") as HTMLElement;
+
+const registerButton = document.querySelector(
+  ".register-button"
+) as HTMLElement;
+export const loggedInOverview = document.querySelector(
+  ".loggedIn"
+) as HTMLElement;
+const divWrongEmailOrPass = document.querySelector(
+  ".divWrongEmailOrPass"
+) as HTMLElement;
+const logOutButton = document.querySelector(".logout") as HTMLElement;
+export const detailproject = document.querySelector(
+  ".detailProjects"
+) as HTMLElement;
+const divAllProjects = document.querySelector(".projects") as HTMLElement;
+const fromAddNewProject: any = document.querySelector(".addProject");
+const detailPage = document.querySelector(".showDetailOfcard")
+const detailPageLogout = document.querySelector(".logoutDetail")
+const nameOnDetailPage = document.querySelector(".nameDetailPage")
+/* FIREBASE*/
+
 import { initializeApp } from "firebase/app";
 
 import {
@@ -21,7 +57,15 @@ import {
   where,
   query,
   DocumentData,
+  onSnapshot,
+  serverTimestamp,
+  orderBy,
+  limit,
+  getDoc,
+  Timestamp,
+  getDocs,
 } from "firebase/firestore";
+
 // firebase config object (frontendobject) -> to connect to frontend to backend
 const firebaseConfig = {
   apiKey: "AIzaSyB-wSWTKbXEU1iuR_2sR4elQJfcoZn_RJs",
@@ -40,28 +84,42 @@ export const fireStoreApp = initializeApp(firebaseConfig);
 // init services
 const auth = getAuth();
 const db = getFirestore();
-// const cardsRef = collection(db,"cards")
 
-/* DOM */
-const googlebutton = document.querySelector(".google-logo");
-const githubButton = document.querySelector(".github-logo");
-const loginForm: any = document.querySelector(".loginForm");
-const registerFrom: HTMLFormElement = document.querySelector(".registerForm");
-const loginToregisterButton = document.querySelector(
-  ".login-page-register-button"
-);
-export const registerPage = document.querySelector(".register-page");
-const registerTologinButton = document.querySelector(
-  ".register-page-login-button"
-);
-const loginPage = document.querySelector(".login");
+// collection ref
+const colRefProjects = collection(db, "projects");
 
-const registerButton = document.querySelector(".register-button");
-export const loggedInOverview = document.querySelector(".loggedIn");
-const divWrongEmailOrPass = document.querySelector(".divWrongEmailOrPass");
-const logOutButton = document.querySelector(".logout");
-export const detailproject = document.querySelector(".detailProjects");
+/* FUNCTION TO NAVIGATE BETWEEN PAGES */
+const pages = [registerPage, loginPage, loggedInOverview,detailPage];
 
+const changeScreen = (destinationScreen: any) => {
+  destinationScreen.classList.remove("hidden");
+
+  pages.map((page) => {
+    if (page !== destinationScreen) {
+      page.classList.add("hidden");
+    }
+  });
+};
+
+function Changescreens() {
+  loginToregisterButton.addEventListener("click", async function () {
+    changeScreen(registerPage);
+  });
+  registerTologinButton.addEventListener("click", async function () {
+    changeScreen(loginPage);
+  });
+
+  registerButton.addEventListener("click", async function () {
+    changeScreen(loggedInOverview);
+  });
+  // pas aan
+  githubButton.addEventListener("click", async function () {
+    changeScreen(loggedInOverview);
+  });
+
+}
+
+Changescreens();
 
 /* 1) AUTHENTICATIE & REGISTRATIE  */
 
@@ -90,7 +148,6 @@ registerFrom?.addEventListener("submit", (e: any) => {
 });
 
 // logging in and out with email
-
 loginForm.addEventListener("submit", (e: any) => {
   e.preventDefault();
 
@@ -132,6 +189,17 @@ logOutButton.addEventListener("click", () => {
     });
 });
 
+detailPageLogout.addEventListener("click", () => {
+  signOut(auth)
+    .then(() => {
+      console.log("user signed out");
+      changeScreen(loginPage);
+      loggedInOverview.classList.add("hidden");
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+});
 //signing up with google
 let loginWithGoogle = () => {
   let provider = new GoogleAuthProvider();
@@ -148,7 +216,6 @@ let loginWithGoogle = () => {
 googlebutton.addEventListener("click", loginWithGoogle);
 
 //signing up with github
-//const loginWithGithub = getAuth();
 let loginWithGithub = () => {
   let githubProvider = new GithubAuthProvider();
   signInWithPopup(auth, githubProvider)
@@ -177,98 +244,59 @@ let loginWithGithub = () => {
       console.log(credential);
     });
 };
-
 githubButton.addEventListener("click", loginWithGithub);
 
 // get the currently signed-in user
 
-///////////////////////////////////////////////////////////////////////////////////////////////
+/* AGENDA (Een overview van alle projecten) + toevoegen van nieuwe projecten*/
+onSnapshot(colRefProjects, (snapchot) => {
+  let projects: any = [];
 
-/* CHANING PAGES */
+  snapchot.docs.forEach((doc) => {
+    projects.push({ ...doc.data(), id: doc.id });
+    divAllProjects.innerHTML = "";
 
-const pages = [registerPage, loginPage, loggedInOverview];
+      // Get a projects info
+      projects.forEach((doc: any) => {
+      const projectName = doc?.project_name;
+      const projectId = doc?.id;
+      const uidUser = localStorage.getItem("user_Uid");
 
-const changeScreen = (destinationScreen: any) => {
-  destinationScreen.classList.remove("hidden");
+    
+      // Show the projects to the viewer
+      let newProject = document.createElement("p");
+      newProject.classList.add("newProject");
+      newProject.innerHTML = `Project: ${projectName}`;
+      divAllProjects.appendChild(newProject);
 
-  pages.map((page) => {
-    if (page !== destinationScreen) {
-      page.classList.add("hidden");
-    }
+      // navigate to detail page
+      newProject.addEventListener("click", async function () {
+        changeScreen(detailPage);
+        console.log(projectId);
+        console.log(projectName)
+      /* PROJECTEN (De details van 1 project) + toevoegen van subtaken, ...*/
+        let detailName = document.createElement('h3');
+        detailName.classList.add("detail-projects");
+        detailName.innerHTML = `${projectName}`;
+        nameOnDetailPage.appendChild(detailName);
+    });
+
+     
+    });
   });
-};
 
-function Changescreens() {
-  loginToregisterButton.addEventListener("click", async function () {
-    changeScreen(registerPage);
-  });
-  registerTologinButton.addEventListener("click", async function () {
-    changeScreen(loginPage);
-  });
+  console.log(projects);
+});
 
-  registerButton.addEventListener("click", async function () {
-    changeScreen(loggedInOverview);
-  });
-  // pas aan
-  githubButton.addEventListener("click", async function () {
-    changeScreen(loggedInOverview);
-  });
-  
-}
+// Add a new project
+fromAddNewProject.addEventListener("submit", (e) => {
+  e.preventDefault(); // omdat de default betekend dat de pagina herlaad, dat willen we voorkomen
 
-Changescreens();
+  addDoc(colRefProjects, {
+    project_name: fromAddNewProject.project_name.value,
+    uid_admin: localStorage.getItem("user_Uid"),
+   
+  }).then(fromAddNewProject.reset());
+});
 
-// get data from firestore
-
-export const fireStoreDb = getFirestore(fireStoreApp);
-export const addTodoFirebase = async (text: string, todoId: string) => {
-  const cardsSnapShot = collection(fireStoreDb, `lists/${todoId}/cards`);
-  
-  const docRef = await addDoc(cardsSnapShot, {
-    title: text,
-    description: "",
-    comments: [],
-    cards_user_uid: localStorage.getItem("user_Uid")
-  });
-  //console.log('test')
-  return docRef.id;
-  
-
-};
-//const q = query(cardsRef, where('cards_user_uid',"==" ,localStorage.getItem("user_Uid") ))
-export const updateTodoFirebase = async (
-  todoListId: string,
-  id: string,
-  attribute: string,
-  value: string
-) => {
-  console.log(todoListId, id, attribute, value);
-  if (attribute === "title") {
-    await setDoc(
-      doc(fireStoreDb, `lists/${todoListId}/cards`, id),
-      {
-        title: value,
-      },
-      { merge: true }
-    );
-  } else {
-    await setDoc(
-      doc(fireStoreDb, `lists/${todoListId}/cards`, id),
-      {
-        description: value,
-      },
-      { merge: true }
-    );
-  }
-};
-
-export const deleteTodoListFirebase = async (id: string) => {
-  await deleteDoc(doc(fireStoreDb, "lists", id));
-};
-
-export const deleteCardFromFirebase = async (
-  todoListId: string,
-  id: string
-) => {
-  await deleteDoc(doc(fireStoreDb, `lists/${todoListId}/cards`, id));
-};
+// Delete an existing project
