@@ -151,7 +151,8 @@ h2 {
   margin-top: -60px;
 }
 
-.logout, .logoutDetail {
+.logout,
+.logoutDetail {
   color: var(--coral);
   background-color: var(--medium--blue);
   padding: 10px 30px;
@@ -291,8 +292,34 @@ h2 {
   margin: 10px;
 }
 
+.newCard {
+  background-color: var(--medium--blue);
+  min-height: 500px;
+  width: 300px;
+  margin: 10px;
+  color: var(--coral);
+  font-weight: bold;
+  text-align: center;
+}
+
 .projects {
   display: flex;
   flex-wrap: wrap;
 
+}
+
+.backToprojects {
+  border: none;
+  color: var(--coral);
+}
+
+.allCards {
+  display: flex;
+  margin: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-save-todo {
+ background-color: var(--coral);
+ border: none;
 }

@@ -30,9 +30,12 @@ export const detailproject = document.querySelector(
 ) as HTMLElement;
 const divAllProjects = document.querySelector(".projects") as HTMLElement;
 const fromAddNewProject: any = document.querySelector(".addProject");
-const detailPage = document.querySelector(".showDetailOfcard")
-const detailPageLogout = document.querySelector(".logoutDetail")
-const nameOnDetailPage = document.querySelector(".nameDetailPage")
+const detailPage = document.querySelector(".showDetailOfcard");
+const detailPageLogout = document.querySelector(".logoutDetail");
+const nameOnDetailPage = document.querySelector(".nameDetailPage");
+const formAddNewCard: any = document.querySelector(".addCard");
+const divAllCards: any = document.querySelector(".allCards")
+const backToProjects:any = document.querySelector(".backToprojects")
 /* FIREBASE*/
 
 import { initializeApp } from "firebase/app";
@@ -87,9 +90,9 @@ const db = getFirestore();
 
 // collection ref
 const colRefProjects = collection(db, "projects");
-
+const colrefCards = collection(db, "cards");
 /* FUNCTION TO NAVIGATE BETWEEN PAGES */
-const pages = [registerPage, loginPage, loggedInOverview,detailPage];
+const pages = [registerPage, loginPage, loggedInOverview, detailPage];
 
 const changeScreen = (destinationScreen: any) => {
   destinationScreen.classList.remove("hidden");
@@ -116,7 +119,8 @@ function Changescreens() {
   githubButton.addEventListener("click", async function () {
     changeScreen(loggedInOverview);
   });
-
+  backToProjects.addEventListener("click", async function () {
+    changeScreen(loggedInOverview);})
 }
 
 Changescreens();
@@ -193,7 +197,7 @@ detailPageLogout.addEventListener("click", () => {
   signOut(auth)
     .then(() => {
       console.log("user signed out");
-      changeScreen(loginPage);
+      window.location.reload()
       loggedInOverview.classList.add("hidden");
     })
     .catch((err) => {
@@ -256,14 +260,15 @@ onSnapshot(colRefProjects, (snapchot) => {
     projects.push({ ...doc.data(), id: doc.id });
     divAllProjects.innerHTML = "";
 
-      // Get a projects info
-      projects.forEach((doc: any) => {
+    // Get a projects info
+    projects.forEach((doc: any) => {
       const projectName = doc?.project_name;
       const projectId = doc?.id;
+      localStorage.setItem("project_id", projectId);
       const uidUser = localStorage.getItem("user_Uid");
 
-    
       // Show the projects to the viewer
+     
       let newProject = document.createElement("p");
       newProject.classList.add("newProject");
       newProject.innerHTML = `Project: ${projectName}`;
@@ -273,15 +278,59 @@ onSnapshot(colRefProjects, (snapchot) => {
       newProject.addEventListener("click", async function () {
         changeScreen(detailPage);
         console.log(projectId);
-        console.log(projectName)
-      /* PROJECTEN (De details van 1 project) + toevoegen van subtaken, ...*/
-        let detailName = document.createElement('h3');
+        console.log(projectName);
+        /* PROJECTEN (De details van 1 project) + toevoegen van subtaken, ...*/
+       
+        let detailName = document.createElement("h3");
         detailName.classList.add("detail-projects");
         detailName.innerHTML = `${projectName}`;
         nameOnDetailPage.appendChild(detailName);
-    });
+       
+        
 
-     
+        // Add a new card
+        formAddNewCard.addEventListener("submit", (e) => {
+          e.preventDefault();
+
+          addDoc(colrefCards, {
+            card_name: formAddNewCard.card_name.value,
+            card_uid: localStorage.getItem("user_Uid"),
+            project_id: projectId,
+          }).then(formAddNewCard.reset());
+        });
+        onSnapshot(colrefCards,(snapchot)=>{
+          let cards: any = [];
+          snapchot.docs.forEach((doc) => {
+            cards.push({...doc.data(), id: doc.id});
+            divAllCards.innerHTML = "";
+
+            // get card info
+            cards.forEach((doc:any)=> {
+              const cardName= doc?.card_name;
+              const cardprojectId = doc?.project_id;
+              const cardId = doc?.id;
+              const cardUid= localStorage.getItem("user_Uid");
+            
+            // show the cards to the user
+            if (projectId == cardprojectId ){
+              let newCard = document.createElement('p')
+              newCard.classList.add("newCard")
+              newCard.innerHTML= `${cardName} <form class="addToDo">
+              <label for="todo_name"></label>
+              <input type="text" class="comment" name="todo_name"/>
+              <button class="btn-save-todo">Add New todo</button>
+            </form>`
+              divAllCards.appendChild(newCard)
+            } else {
+              console.log('niet dezelfde');
+            }
+            
+            })
+
+          })
+        })
+      });
+
     });
   });
 
@@ -295,7 +344,6 @@ fromAddNewProject.addEventListener("submit", (e) => {
   addDoc(colRefProjects, {
     project_name: fromAddNewProject.project_name.value,
     uid_admin: localStorage.getItem("user_Uid"),
-   
   }).then(fromAddNewProject.reset());
 });
 

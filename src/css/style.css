@@ -123,7 +123,7 @@
   margin-right: 0.5em;
 }
 
-.btn-save{
+.btn-save, .btn-save-card{
   background-color: var(--coral);
   color: var(--white);
   border: none;
