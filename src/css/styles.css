@@ -323,3 +323,7 @@ h2 {
  background-color: var(--coral);
  border: none;
 }
+
+.newTodo {
+  color: var(--error--red);
+}
